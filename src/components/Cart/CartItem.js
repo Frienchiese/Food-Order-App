@@ -1,6 +1,8 @@
+import React, { useRef } from "react";
+
 import classes from "./CartItem.module.css";
 
-const CartItem = (props) => {
+const CartItem = React.forwardRef((props, ref) => {
   const price = `$${props.price.toFixed(2)}`;
 
   return (
@@ -13,11 +15,15 @@ const CartItem = (props) => {
         </div>
       </div>
       <div className={classes.actions}>
-        <button onClick={props.onRemove}>−</button>
-        <button onClick={props.onAdd}>+</button>
+        <button onClick={props.onRemove} value={props.id}>
+          −
+        </button>
+        <button onClick={props.onAdd} ref={ref} {...props}>
+          +
+        </button>
       </div>
     </li>
   );
-};
+});
 
 export default CartItem;
