@@ -1,6 +1,22 @@
 import Card from "../UI/Card";
 import MealItem from "./MealItem/MealItem";
 import classes from "./AvailableMeals.module.css";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase";
+import { useState, useEffect } from "react";
+
+const [availableMeals, setAvailableMeals] = useState([]);
+
+const fetchPost = async () => {
+  await getDocs(collection(db, "availableMeals")).then((querySnapshot) => {
+    const newData = querySnapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+    setTodos(newData);
+    console.log(availableMeals, newData);
+  });
+};
 
 const DUMMY_MEALS = [
   {
