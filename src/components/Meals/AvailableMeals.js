@@ -4,7 +4,7 @@ import classes from "./AvailableMeals.module.css";
 import { useState, useEffect } from "react";
 
 const BASE_URL =
-  "https://food-order-app-6bbf8-default-rtdb.europe-west1.firebasedatabase.app/meals";
+  "https://food-order-app-6bbf8-default-rtdb.europe-west1.firebasedatabase.app/meals.json";
 
 const AvailableMeals = () => {
   const [recievedData, setRecievedData] = useState([]);
