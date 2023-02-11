@@ -1,52 +1,48 @@
 import Card from "../UI/Card";
 import MealItem from "./MealItem/MealItem";
 import classes from "./AvailableMeals.module.css";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
 import { useState, useEffect } from "react";
 
-const [availableMeals, setAvailableMeals] = useState([]);
-
-const fetchPost = async () => {
-  await getDocs(collection(db, "availableMeals")).then((querySnapshot) => {
-    const newData = querySnapshot.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    }));
-    setTodos(newData);
-    console.log(availableMeals, newData);
-  });
-};
-
-const DUMMY_MEALS = [
-  {
-    id: "m1",
-    name: "Sushi",
-    description: "Finest fish and veggies",
-    price: 22.99,
-  },
-  {
-    id: "m2",
-    name: "Schnitzel",
-    description: "A german specialty!",
-    price: 16.5,
-  },
-  {
-    id: "m3",
-    name: "Barbecue Burger",
-    description: "American, raw, meaty",
-    price: 12.99,
-  },
-  {
-    id: "m4",
-    name: "Green Bowl",
-    description: "Healthy...and green...",
-    price: 18.99,
-  },
-];
+const BASE_URL =
+  "https://food-order-app-6bbf8-default-rtdb.europe-west1.firebasedatabase.app/meals";
 
 const AvailableMeals = () => {
-  const mealsList = DUMMY_MEALS.map((meal) => (
+  const [recievedData, setRecievedData] = useState([]);
+  const [isDataRecieved, setIsDataRecieved] = useState(false);
+  const [httpError, setHttpError] = useState();
+
+  useEffect(() => {
+    const fetchMeals = async () => {
+      const response = await fetch(BASE_URL);
+
+      if (!response.ok) {
+        throw new Error("Something went wrong!");
+      }
+
+      const responseData = await response.json();
+
+      const loadedMeals = [];
+
+      for (const key in responseData) {
+        loadedMeals.push({
+          id: key,
+          key: key,
+          name: responseData[key].name,
+          description: responseData[key].description,
+          price: responseData[key].price,
+        });
+      }
+      setRecievedData(loadedMeals);
+      setIsDataRecieved(true);
+    };
+
+    fetchMeals().catch((error) => {
+      setIsDataRecieved(true);
+      setHttpError(error.message);
+    });
+  }, []);
+
+  const mealsList = recievedData.map((meal) => (
     <MealItem
       id={meal.id}
       key={meal.id}
@@ -55,6 +51,22 @@ const AvailableMeals = () => {
       price={meal.price}
     />
   ));
+
+  if (!isDataRecieved) {
+    return (
+      <section className={classes.mealsLoading}>
+        <p>Page is loading...</p>
+      </section>
+    );
+  }
+
+  if (httpError) {
+    return (
+      <section className={classes.mealsError}>
+        <p>{httpError}</p>
+      </section>
+    );
+  }
 
   return (
     <section className={classes.meals}>
